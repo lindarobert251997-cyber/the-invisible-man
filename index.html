@@ -1,49 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Invisible Man</title>
-
-<style>
-html, body {
-  margin: 0;
-  padding: 0;
-  background: black;
-  font-family: "Courier New", monospace;
-  height: 100%;
-  overflow: hidden;
-}
-
-#tv-line {
-  position: fixed;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: white;
-  opacity: 0;
-  transition: opacity 0.6s;
-}
-
-#content {
-  display: none;
-  padding: 60px 40px;
-  font-size: 20px;
-  line-height: 1.8;
-}
-
-.line1 { color: #00ff9c; }   /* neon green */
-.line2 { color: #00bfff; }   /* electric blue */
-.line3 { color: #ff00ff; }   /* magenta */
-.line4 { color: #ffff00; }   /* yellow */
-.line5 { color: #ff5555; }   /* red */
-</style>
-</head>
-
 <body>
 
-<div id="tv-line"></div>
+<div id="crt"></div>
 <div id="content"></div>
 
 <script>
@@ -58,17 +15,23 @@ const lines = [
   { text: "thelastvision@live.com", class: "line5" }
 ];
 
-const tv = document.getElementById("tv-line");
+const crt = document.getElementById("crt");
 const content = document.getElementById("content");
 
-/* Slower CRT effect */
-setTimeout(() => tv.style.opacity = 1, 500);
-setTimeout(() => tv.style.opacity = 0, 1800);
+/* Start CRT collapse */
+setTimeout(() => {
+  crt.style.animation = "collapseVertical 0.6s forwards";
+}, 500);
 
 setTimeout(() => {
+  crt.style.animation = "collapseDot 0.4s forwards";
+}, 1100);
+
+setTimeout(() => {
+  crt.style.display = "none";
   content.style.display = "block";
   typeLines();
-}, 2500);
+}, 1600);
 
 function typeLines() {
   let lineIndex = 0;
@@ -90,9 +53,9 @@ function typeLines() {
       if (i >= text.length) {
         clearInterval(typing);
         lineIndex++;
-        setTimeout(typeLine, 400);  // pause between lines
+        setTimeout(typeLine, 400);
       }
-    }, 80);  // slower typing speed
+    }, 80);
 
     if (text === "") {
       lineIndex++;
@@ -106,4 +69,3 @@ function typeLines() {
 </script>
 
 </body>
-</html>
