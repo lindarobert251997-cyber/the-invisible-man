@@ -4,63 +4,105 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Invisible Man</title>
+
 <style>
 html, body {
   margin: 0;
   padding: 0;
   background: black;
-  color: #00ff9c;
   font-family: "Courier New", monospace;
   height: 100%;
   overflow: hidden;
 }
+
 #tv-line {
   position: fixed;
   top: 50%;
   left: 0;
   width: 100%;
-  height: 2px;
+  height: 3px;
   background: white;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.6s;
 }
+
 #content {
   display: none;
-  white-space: pre-line;
-  font-size: 18px;
-  padding: 40px;
+  padding: 60px 40px;
+  font-size: 20px;
+  line-height: 1.8;
 }
+
+.line1 { color: #00ff9c; }   /* neon green */
+.line2 { color: #00bfff; }   /* electric blue */
+.line3 { color: #ff00ff; }   /* magenta */
+.line4 { color: #ffff00; }   /* yellow */
+.line5 { color: #ff5555; }   /* red */
 </style>
 </head>
+
 <body>
 
 <div id="tv-line"></div>
 <div id="content"></div>
 
 <script>
-const text = `Cipher
-aka The Invisible Man
 
-The Last Vision
-
-561.305.9696
-thelastvision@live.com`;
+const lines = [
+  { text: "Cipher", class: "line1" },
+  { text: "aka The Invisible Man", class: "line2" },
+  { text: "", class: "" },
+  { text: "The Last Vision", class: "line3" },
+  { text: "", class: "" },
+  { text: "561.305.9696", class: "line4" },
+  { text: "thelastvision@live.com", class: "line5" }
+];
 
 const tv = document.getElementById("tv-line");
 const content = document.getElementById("content");
 
-setTimeout(() => tv.style.opacity = 1, 200);
-setTimeout(() => tv.style.opacity = 0, 600);
+/* Slower CRT effect */
+setTimeout(() => tv.style.opacity = 1, 500);
+setTimeout(() => tv.style.opacity = 0, 1800);
 
 setTimeout(() => {
   content.style.display = "block";
-  let i = 0;
-  const timer = setInterval(() => {
-    content.textContent += text.charAt(i);
-    i++;
-    if (i >= text.length) clearInterval(timer);
-  }, 50);
-}, 1400);
+  typeLines();
+}, 2500);
+
+function typeLines() {
+  let lineIndex = 0;
+
+  function typeLine() {
+    if (lineIndex >= lines.length) return;
+
+    const lineData = lines[lineIndex];
+    const div = document.createElement("div");
+    div.className = lineData.class;
+    content.appendChild(div);
+
+    let i = 0;
+    const text = lineData.text;
+
+    const typing = setInterval(() => {
+      div.textContent += text.charAt(i);
+      i++;
+      if (i >= text.length) {
+        clearInterval(typing);
+        lineIndex++;
+        setTimeout(typeLine, 400);  // pause between lines
+      }
+    }, 80);  // slower typing speed
+
+    if (text === "") {
+      lineIndex++;
+      setTimeout(typeLine, 400);
+    }
+  }
+
+  typeLine();
+}
+
 </script>
 
 </body>
