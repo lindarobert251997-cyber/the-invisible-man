@@ -108,14 +108,14 @@ const crt = document.getElementById("crt");
 const content = document.getElementById("content");
 
 /* Start RGB shutdown */
-beam.style.animation = "rgbShutdown 1s forwards";
+beam.style.animation = "rgbShutdown .55s forwards";
 
 /* Remove CRT and start typing */
 setTimeout(() => {
   crt.style.display = "none";
   content.style.display = "block";
   typeLines();
-}, 1100);
+}, 650);
 
 function typeLines() {
   let lineIndex = 0;
