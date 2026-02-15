@@ -109,14 +109,14 @@ setTimeout(() => {
 /* RGB burst */
 setTimeout(() => {
   beam.style.animation = "rgbBurst 0.5s forwards";
-}, 1100);
+}, 800);
 
 /* Remove CRT and start typing */
 setTimeout(() => {
   crt.style.display = "none";
   content.style.display = "block";
   typeLines();
-}, 1700);
+}, 1000);
 
 function typeLines() {
   let lineIndex = 0;
