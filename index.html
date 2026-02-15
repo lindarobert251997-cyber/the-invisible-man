@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Invisible Man</title>
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  color: #00ff9c;
+  font-family: "Courier New", monospace;
+  height: 100%;
+  overflow: hidden;
+}
+#tv-line {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+#content {
+  display: none;
+  white-space: pre-line;
+  font-size: 18px;
+  padding: 40px;
+}
+</style>
+</head>
+<body>
+
+<div id="tv-line"></div>
+<div id="content"></div>
+
+<script>
+const text = `Cipher
+aka The Invisible Man
+
+The Last Vision
+
+561.305.9696
+thelastvision@live.com`;
+
+const tv = document.getElementById("tv-line");
+const content = document.getElementById("content");
+
+setTimeout(() => tv.style.opacity = 1, 200);
+setTimeout(() => tv.style.opacity = 0, 600);
+
+setTimeout(() => {
+  content.style.display = "block";
+  let i = 0;
+  const timer = setInterval(() => {
+    content.textContent += text.charAt(i);
+    i++;
+    if (i >= text.length) clearInterval(timer);
+  }, 50);
+}, 1400);
+</script>
+
+</body>
+</html>
