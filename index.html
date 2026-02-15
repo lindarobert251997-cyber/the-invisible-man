@@ -33,41 +33,39 @@ html, body {
 #beam {
   width: 100%;
   height: 100%;
-  background: white;
   transform-origin: center;
+  background: linear-gradient(
+    90deg,
+    red,
+    lime,
+    blue
+  );
 }
 
 /* Single RGB shutdown animation */
 @keyframes rgbShutdown {
 
-  /* Screen fully on */
+  /* Full screen RGB */
   0% {
     transform: scaleY(1) scaleX(1);
-    background: white;
-    filter: none;
     opacity: 1;
   }
 
-  /* Collapse into bright RGB line */
-  40% {
+  /* Collapse into thin RGB line */
+  50% {
     transform: scaleY(0.02) scaleX(1);
-    background: white;
-    filter:
-      drop-shadow(-8px 0 red)
-      drop-shadow(8px 0 blue)
-      drop-shadow(0 0 15px lime);
   }
 
-  /* RGB separation burst */
-  70% {
+  /* RGB burst compression */
+  80% {
     transform: scaleY(0.02) scaleX(0.4);
     filter:
-      drop-shadow(-14px 0 red)
-      drop-shadow(14px 0 blue)
+      drop-shadow(-15px 0 red)
+      drop-shadow(15px 0 blue)
       drop-shadow(0 0 20px lime);
   }
 
-  /* Shrink and fade */
+  /* Fade out */
   100% {
     transform: scaleY(0.02) scaleX(0.05);
     opacity: 0;
@@ -114,10 +112,8 @@ const beam = document.getElementById("beam");
 const crt = document.getElementById("crt");
 const content = document.getElementById("content");
 
-/* Start single RGB shutdown */
-setTimeout(() => {
-  beam.style.animation = "rgbShutdown 0.9s forwards";
-}, 400);
+/* Start shutdown immediately (no white pre-flash) */
+beam.style.animation = "rgbShutdown 1.2s forwards";
 
 /* Remove CRT and start typing */
 setTimeout(() => {
@@ -148,7 +144,7 @@ function typeLines() {
         lineIndex++;
         setTimeout(typeLine, 400);
       }
-    }, 80);
+    }, 60);
 
     if (text === "") {
       lineIndex++;
