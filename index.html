@@ -15,7 +15,7 @@ html, body {
   overflow: hidden;
 }
 
-/* CRT overlay container */
+/* CRT overlay */
 #crt {
   position: fixed;
   top: 0;
@@ -29,7 +29,7 @@ html, body {
   pointer-events: none;
 }
 
-/* The collapse line */
+/* RGB beam */
 #beam {
   width: 100%;
   height: 100%;
@@ -37,27 +37,40 @@ html, body {
   transform-origin: center;
 }
 
-/* Vertical collapse */
-@keyframes collapseVertical {
-  0% { transform: scaleY(1); }
-  70% { transform: scaleY(0.02); }
-  100% { transform: scaleY(0.02); }
-}
+/* Single RGB shutdown animation */
+@keyframes rgbShutdown {
 
-/* RGB separation burst */
-@keyframes rgbBurst {
-  0% { filter: none; }
-  30% { filter: 
-        drop-shadow(-6px 0 red)
-        drop-shadow(6px 0 blue)
-        drop-shadow(0 0 12px lime);
+  /* Screen fully on */
+  0% {
+    transform: scaleY(1) scaleX(1);
+    background: white;
+    filter: none;
+    opacity: 1;
   }
-  60% {
-        transform: scaleX(0.4) scaleY(0.02);
+
+  /* Collapse into bright RGB line */
+  40% {
+    transform: scaleY(0.02) scaleX(1);
+    background: white;
+    filter:
+      drop-shadow(-8px 0 red)
+      drop-shadow(8px 0 blue)
+      drop-shadow(0 0 15px lime);
   }
+
+  /* RGB separation burst */
+  70% {
+    transform: scaleY(0.02) scaleX(0.4);
+    filter:
+      drop-shadow(-14px 0 red)
+      drop-shadow(14px 0 blue)
+      drop-shadow(0 0 20px lime);
+  }
+
+  /* Shrink and fade */
   100% {
-        opacity: 0;
-        transform: scaleX(0.05) scaleY(0.02);
+    transform: scaleY(0.02) scaleX(0.05);
+    opacity: 0;
   }
 }
 
@@ -73,8 +86,8 @@ html, body {
 .line3 { color: #ff00ff; }
 .line4 { color: #ffff00; }
 .line5 { color: #ff5555; }
-</style>
 
+</style>
 </head>
 
 <body>
@@ -101,22 +114,17 @@ const beam = document.getElementById("beam");
 const crt = document.getElementById("crt");
 const content = document.getElementById("content");
 
-/* Start vertical collapse */
+/* Start single RGB shutdown */
 setTimeout(() => {
-  beam.style.animation = "collapseVertical 0.7s forwards";
+  beam.style.animation = "rgbShutdown 0.9s forwards";
 }, 400);
-
-/* RGB burst */
-setTimeout(() => {
-  beam.style.animation = "rgbBurst 0.5s forwards";
-}, 800);
 
 /* Remove CRT and start typing */
 setTimeout(() => {
   crt.style.display = "none";
   content.style.display = "block";
   typeLines();
-}, 1000);
+}, 1300);
 
 function typeLines() {
   let lineIndex = 0;
@@ -154,5 +162,4 @@ function typeLines() {
 </script>
 
 </body>
-
 </html>
