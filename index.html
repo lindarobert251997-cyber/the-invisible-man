@@ -29,46 +29,41 @@ html, body {
   pointer-events: none;
 }
 
-/* RGB beam */
+/* RGB line — STARTS as a thin line */
 #beam {
   width: 100%;
-  height: 100%;
-  transform-origin: center;
-  background: linear-gradient(
-    90deg,
-    red,
-    lime,
-    blue
-  );
+  height: 2px;
+  background: linear-gradient(90deg, red, lime, blue);
+  box-shadow:
+    -15px 0 20px red,
+     15px 0 20px blue,
+     0 0 30px lime;
+  opacity: 0;
 }
 
-/* Single RGB shutdown animation */
+/* Shutdown animation */
 @keyframes rgbShutdown {
 
-  /* Full screen RGB */
+  /* Appear as thin RGB line */
   0% {
-    transform: scaleY(1) scaleX(1);
     opacity: 1;
+    transform: scaleX(1);
   }
 
-  /* Collapse into thin RGB line */
-  50% {
-    transform: scaleY(0.02) scaleX(1);
+  /* Slight burst */
+  40% {
+    transform: scaleX(0.5);
   }
 
-  /* RGB burst compression */
+  /* Collapse to center */
   80% {
-    transform: scaleY(0.02) scaleX(0.4);
-    filter:
-      drop-shadow(-15px 0 red)
-      drop-shadow(15px 0 blue)
-      drop-shadow(0 0 20px lime);
+    transform: scaleX(0.1);
   }
 
-  /* Fade out */
+  /* Disappear */
   100% {
-    transform: scaleY(0.02) scaleX(0.05);
     opacity: 0;
+    transform: scaleX(0);
   }
 }
 
@@ -112,15 +107,15 @@ const beam = document.getElementById("beam");
 const crt = document.getElementById("crt");
 const content = document.getElementById("content");
 
-/* Start shutdown immediately (no white pre-flash) */
-beam.style.animation = "rgbShutdown 1.2s forwards";
+/* Start RGB shutdown */
+beam.style.animation = "rgbShutdown 1s forwards";
 
 /* Remove CRT and start typing */
 setTimeout(() => {
   crt.style.display = "none";
   content.style.display = "block";
   typeLines();
-}, 1300);
+}, 1100);
 
 function typeLines() {
   let lineIndex = 0;
