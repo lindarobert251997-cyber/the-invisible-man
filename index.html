@@ -74,7 +74,8 @@ html, body {
   font-size: 20px;
   line-height: 1.8;
 }
-
+.circle-cont{ display: flex; justify-content: center; align-items: center; height: 100%;}
+.circle{ background: #fff; height: 40px; width: 40px; border-radius: 50px;}
 .line1 { color: #00FFEF; font-weight: 600;}
 .line2 { color: red; font-weight: 600;}
 .line3 { color: red; font-weight: 600;}
@@ -87,7 +88,12 @@ html, body {
 <body>
 
 <div id="crt">
-  <div id="beam"></div>
+  <div id="beam">
+    <div class="circle-cont">
+       <div class="circle">
+       </div>
+      </div>
+  </div>
 </div>
 
 <div id="content"></div>
