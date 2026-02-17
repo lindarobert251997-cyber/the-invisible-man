@@ -15,30 +15,27 @@ html, body {
   overflow: hidden;
 }
 
-/* ===== Editor Container ===== */
 #editor {
   padding: 60px;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.8;
   color: #d4d4d4;
-  position: relative;
+  white-space: pre;
 }
 
-/* ===== Cursor ===== */
+/* Cursor */
 .cursor {
   display: inline-block;
-  width: 10px;
+  width: 8px;
   background: #d4d4d4;
-  margin-left: 3px;
   animation: blink 1s infinite;
 }
-
 @keyframes blink {
-  0%, 50%, 100% { opacity: 1; }
-  25%, 75% { opacity: 0; }
+  0%,50%,100% { opacity: 1; }
+  25%,75% { opacity: 0; }
 }
 
-/* ===== VS Code Dark+ Theme ===== */
+/* VS Code Dark+ */
 .token-keyword   { color: #569CD6; }
 .token-string    { color: #CE9178; }
 .token-function  { color: #DCDCAA; }
@@ -47,11 +44,9 @@ html, body {
 .token-brace     { color: #FFD700; }
 .token-dot       { color: #9CDCFE; }
 .token-semicolon { color: #d4d4d4; }
-.token-comma     { color: #d4d4d4; }
 .token-property  { color: #9CDCFE; }
-.token-comment   { color: #6A9955; }
 
-/* ===== IntelliSense Popup ===== */
+/* Suggestions */
 #suggestions {
   position: absolute;
   background: #252526;
@@ -59,16 +54,14 @@ html, body {
   padding: 6px 0;
   font-size: 14px;
   color: #d4d4d4;
-  width: 220px;
+  width: 240px;
   display: none;
   box-shadow: 0 8px 20px rgba(0,0,0,0.6);
   border-radius: 4px;
 }
-
 .suggestion-item {
   padding: 6px 12px;
 }
-
 .suggestion-item:hover {
   background: #094771;
 }
@@ -80,11 +73,10 @@ html, body {
 <div id="editor"></div>
 
 <div id="suggestions">
-  <div class="suggestion-item">entity(name: string)</div>
-  <div class="suggestion-item">inject(identity: string)</div>
-  <div class="suggestion-item">signal(target: string)</div>
-  <div class="suggestion-item">connect(number: string)</div>
-  <div class="suggestion-item">mail(address: string)</div>
+  <div class="suggestion-item">inject("The Invisible Man")</div>
+  <div class="suggestion-item">signal("The Last Vision")</div>
+  <div class="suggestion-item">connect("561.305.9696")</div>
+  <div class="suggestion-item">mail("thelastvision@live.com")</div>
 </div>
 
 <script>
@@ -92,81 +84,132 @@ html, body {
 const editor = document.getElementById("editor");
 const suggestions = document.getElementById("suggestions");
 
-/* Code lines with full syntax highlighting */
-const lines = [
-  `<span class="token-keyword">try</span> <span class="token-brace">{</span>`,
+let lines = [];
+let cursorLine = 0;
+let cursorPos = 0;
 
-  `   <span class="token-property">system</span><span class="token-dot">.</span><span class="token-property">visibility</span> <span class="token-operator">=</span> <span class="token-keyword">false</span><span class="token-semicolon">;</span>`,
+function render() {
+  editor.innerHTML = "";
 
-  `   <span class="token-property">render</span><span class="token-dot">.</span><span class="token-function">entity</span><span class="token-brace">(</span><span class="token-string">"Cipher"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>`,
-
-  `   <span class="token-property">identity</span><span class="token-dot">.</span><span class="token-function">inject</span><span class="token-brace">(</span><span class="token-string">"The Invisible Man"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>`,
-
-  ``,
-
-  `   <span class="token-property">network</span><span class="token-dot">.</span><span class="token-function">signal</span><span class="token-brace">(</span><span class="token-string">"The Last Vision"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>`,
-
-  ``,
-
-  `   <span class="token-property">contact</span><span class="token-dot">.</span><span class="token-function">connect</span><span class="token-brace">(</span><span class="token-string">"561.305.9696"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>`,
-
-  `   <span class="token-property">contact</span><span class="token-dot">.</span><span class="token-function">mail</span><span class="token-brace">(</span><span class="token-string">"thelastvision@live.com"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>`,
-
-  `<span class="token-brace">}</span>`
-];
-
-/* Suggestion popup */
-function showSuggestions(x, y) {
-  suggestions.style.left = x + "px";
-  suggestions.style.top = y + "px";
-  suggestions.style.display = "block";
-
-  setTimeout(() => {
-    suggestions.style.display = "none";
-  }, 1200);
-}
-
-/* Typing animation */
-function typeLines() {
-  let lineIndex = 0;
-
-  function typeLine() {
-    if (lineIndex >= lines.length) return;
-
+  lines.forEach((line, index) => {
     const div = document.createElement("div");
+
+    if (index === cursorLine) {
+      const before = line.slice(0, cursorPos);
+      const after = line.slice(cursorPos);
+      div.innerHTML = before + `<span class="cursor"></span>` + after;
+    } else {
+      div.innerHTML = line;
+    }
+
     editor.appendChild(div);
-
-    const cursor = document.createElement("span");
-    cursor.className = "cursor";
-    div.appendChild(cursor);
-
-    const html = lines[lineIndex];
-    let i = 0;
-
-    const typing = setInterval(() => {
-
-      div.innerHTML = html.slice(0, i) + `<span class="cursor"></span>`;
-      i++;
-
-      // Trigger suggestions when typing a dot
-      if (html[i] === ".") {
-        const rect = div.getBoundingClientRect();
-        showSuggestions(rect.left + 220, rect.top + 25);
-      }
-
-      if (i >= html.length) {
-        clearInterval(typing);
-        lineIndex++;
-        setTimeout(typeLine, 400);
-      }
-
-    }, 15);
-  }
-
-  typeLine();
+  });
 }
 
-typeLines();
+function typeText(text, speed = 20, callback) {
+  let i = 0;
+  const interval = setInterval(() => {
+    lines[cursorLine] =
+      lines[cursorLine].slice(0, cursorPos) +
+      text[i] +
+      lines[cursorLine].slice(cursorPos);
+
+    cursorPos++;
+    i++;
+    render();
+
+    if (text[i - 1] === ".") {
+      const rect = editor.children[cursorLine].getBoundingClientRect();
+      suggestions.style.left = rect.left + 300 + "px";
+      suggestions.style.top = rect.top + "px";
+      suggestions.style.display = "block";
+      setTimeout(() => suggestions.style.display = "none", 1000);
+    }
+
+    if (i >= text.length) {
+      clearInterval(interval);
+      if (callback) setTimeout(callback, 200);
+    }
+  }, speed);
+}
+
+function newLine(indent = "") {
+  lines.splice(cursorLine + 1, 0, indent);
+  cursorLine++;
+  cursorPos = indent.length;
+  render();
+}
+
+function insertBlock(indent = "") {
+  // Insert opening brace
+  typeText(`<span class="token-brace">{</span>`, 5, () => {
+
+    // Create new indented line
+    newLine(indent + "    ");
+
+    // Insert closing brace on next line
+    lines.splice(cursorLine + 1, 0, indent + `<span class="token-brace">}</span>`);
+    render();
+  });
+}
+
+/* ===== Animation Script ===== */
+
+function start() {
+
+  lines.push("");
+  render();
+
+  typeText(`<span class="token-keyword">class</span> <span class="token-function">Transmission</span> `, 20, () => {
+    insertBlock("");
+
+    setTimeout(() => {
+
+      typeText(`<span class="token-keyword">void</span> <span class="token-function">main</span>() `, 20, () => {
+        insertBlock("    ");
+
+        setTimeout(() => {
+
+          typeText(`<span class="token-keyword">if</span> (visibility == false) `, 20, () => {
+            insertBlock("        ");
+
+            setTimeout(() => {
+
+              typeText(`<span class="token-property">identity</span><span class="token-dot">.</span><span class="token-function">inject</span>("The Invisible Man");`, 15, () => {
+
+                newLine("            ");
+
+                typeText(`<span class="token-property">network</span><span class="token-dot">.</span><span class="token-function">signal</span>("The Last Vision");`, 15, () => {
+
+                  newLine("            ");
+
+                  typeText(`<span class="token-property">contact</span><span class="token-dot">.</span><span class="token-function">connect</span>("561.305.9696");`, 15, () => {
+
+                    newLine("            ");
+
+                    typeText(`<span class="token-property">contact</span><span class="token-dot">.</span><span class="token-function">mail</span>("thelastvision@live.com");`, 15);
+
+                  });
+
+                });
+
+              });
+
+            }, 400);
+
+          });
+
+        }, 400);
+
+      });
+
+    }, 400);
+
+  });
+
+}
+
+start();
 
 </script>
 
