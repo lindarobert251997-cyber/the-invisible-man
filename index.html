@@ -15,27 +15,30 @@ html, body {
   overflow: hidden;
 }
 
+/* ===== Editor Container ===== */
 #editor {
   padding: 60px;
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.8;
   color: #d4d4d4;
+  position: relative;
 }
 
-/* Cursor */
+/* ===== Cursor ===== */
 .cursor {
   display: inline-block;
-  width: 8px;
+  width: 10px;
   background: #d4d4d4;
-  margin-left: 2px;
+  margin-left: 3px;
   animation: blink 1s infinite;
 }
+
 @keyframes blink {
-  0%,50%,100% { opacity: 1; }
-  25%,75% { opacity: 0; }
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
 }
 
-/* VS Code Dark+ */
+/* ===== VS Code Dark+ Theme ===== */
 .token-keyword   { color: #569CD6; }
 .token-string    { color: #CE9178; }
 .token-function  { color: #DCDCAA; }
@@ -44,9 +47,11 @@ html, body {
 .token-brace     { color: #FFD700; }
 .token-dot       { color: #9CDCFE; }
 .token-semicolon { color: #d4d4d4; }
+.token-comma     { color: #d4d4d4; }
 .token-property  { color: #9CDCFE; }
+.token-comment   { color: #6A9955; }
 
-/* Suggestions */
+/* ===== IntelliSense Popup ===== */
 #suggestions {
   position: absolute;
   background: #252526;
@@ -59,9 +64,11 @@ html, body {
   box-shadow: 0 8px 20px rgba(0,0,0,0.6);
   border-radius: 4px;
 }
+
 .suggestion-item {
   padding: 6px 12px;
 }
+
 .suggestion-item:hover {
   background: #094771;
 }
@@ -73,10 +80,11 @@ html, body {
 <div id="editor"></div>
 
 <div id="suggestions">
+  <div class="suggestion-item">entity(name: string)</div>
   <div class="suggestion-item">inject(identity: string)</div>
-  <div class="suggestion-item">transmit(packet: string)</div>
-  <div class="suggestion-item">maintain()</div>
-  <div class="suggestion-item">encrypt(payload: object)</div>
+  <div class="suggestion-item">signal(target: string)</div>
+  <div class="suggestion-item">connect(number: string)</div>
+  <div class="suggestion-item">mail(address: string)</div>
 </div>
 
 <script>
@@ -84,143 +92,81 @@ html, body {
 const editor = document.getElementById("editor");
 const suggestions = document.getElementById("suggestions");
 
-/* Structured code model */
-const codeStructure = [
-  { type: "blockStart", content: `<span class="token-keyword">class</span> <span class="token-function">Transmission</span> <span class="token-brace">{</span>` },
+/* Code lines with full syntax highlighting */
+const lines = [
+  `<span class="token-keyword">try</span> <span class="token-brace">{</span>`,
 
-  { type: "blockStart", content: `    <span class="token-keyword">public</span> <span class="token-keyword">static</span> <span class="token-keyword">void</span> <span class="token-function">main</span><span class="token-brace">(</span><span class="token-string">String[] args</span><span class="token-brace">)</span> <span class="token-brace">{</span>` },
+  `   <span class="token-property">system</span><span class="token-dot">.</span><span class="token-property">visibility</span> <span class="token-operator">=</span> <span class="token-keyword">false</span><span class="token-semicolon">;</span>`,
 
-  { type: "line", content: `        <span class="token-property">System</span><span class="token-dot">.</span><span class="token-function">out</span><span class="token-dot">.</span><span class="token-function">println</span><span class="token-brace">(</span><span class="token-string">"Initializing secure channel..."</span><span class="token-brace">)</span><span class="token-semicolon">;</span>` },
+  `   <span class="token-property">render</span><span class="token-dot">.</span><span class="token-function">entity</span><span class="token-brace">(</span><span class="token-string">"Cipher"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>`,
 
-  { type: "blockStart", content: `        <span class="token-keyword">if</span> <span class="token-brace">(</span><span class="token-property">visibility</span> <span class="token-operator">==</span> <span class="token-keyword">false</span><span class="token-brace">)</span> <span class="token-brace">{</span>` },
+  `   <span class="token-property">identity</span><span class="token-dot">.</span><span class="token-function">inject</span><span class="token-brace">(</span><span class="token-string">"The Invisible Man"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>`,
 
-  { type: "line", content: `            <span class="token-property">identity</span><span class="token-dot">.</span><span class="token-function">inject</span><span class="token-brace">(</span><span class="token-string">"Cipher"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>` },
+  ``,
 
-  { type: "blockStart", content: `            <span class="token-keyword">for</span> <span class="token-brace">(</span><span class="token-keyword">int</span> i <span class="token-operator">=</span> <span class="token-number">0</span><span class="token-semicolon">;</span> i <span class="token-operator"><</span> <span class="token-number">3</span><span class="token-semicolon">;</span> i<span class="token-operator">++</span><span class="token-brace">)</span> <span class="token-brace">{</span>` },
+  `   <span class="token-property">network</span><span class="token-dot">.</span><span class="token-function">signal</span><span class="token-brace">(</span><span class="token-string">"The Last Vision"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>`,
 
-  { type: "line", content: `                <span class="token-property">network</span><span class="token-dot">.</span><span class="token-function">transmit</span><span class="token-brace">(</span><span class="token-string">"Encrypted Packet"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>` },
+  ``,
 
-  { type: "blockEnd", content: `            <span class="token-brace">}</span>` },
+  `   <span class="token-property">contact</span><span class="token-dot">.</span><span class="token-function">connect</span><span class="token-brace">(</span><span class="token-string">"561.305.9696"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>`,
 
-  { type: "blockEnd", content: `        <span class="token-brace">}</span>` },
+  `   <span class="token-property">contact</span><span class="token-dot">.</span><span class="token-function">mail</span><span class="token-brace">(</span><span class="token-string">"thelastvision@live.com"</span><span class="token-brace">)</span><span class="token-semicolon">;</span>`,
 
-  { type: "blockStart", content: `        <span class="token-keyword">while</span> <span class="token-brace">(</span><span class="token-property">connection</span> <span class="token-operator">!=</span> <span class="token-keyword">null</span><span class="token-brace">)</span> <span class="token-brace">{</span>` },
-
-  { type: "line", content: `            <span class="token-property">connection</span><span class="token-dot">.</span><span class="token-function">maintain</span><span class="token-brace">(</span><span class="token-brace">)</span><span class="token-semicolon">;</span>` },
-
-  { type: "blockEnd", content: `        <span class="token-brace">}</span>` },
-
-  { type: "blockEnd", content: `    <span class="token-brace">}</span>` },
-
-  { type: "blockEnd", content: `<span class="token-brace">}</span>` }
+  `<span class="token-brace">}</span>`
 ];
-
 
 /* Suggestion popup */
 function showSuggestions(x, y) {
   suggestions.style.left = x + "px";
   suggestions.style.top = y + "px";
   suggestions.style.display = "block";
-  setTimeout(() => suggestions.style.display = "none", 900);
+
+  setTimeout(() => {
+    suggestions.style.display = "none";
+  }, 1200);
 }
 
+/* Typing animation */
+function typeLines() {
+  let lineIndex = 0;
 
-/* Safe typing (character-by-character without breaking tags) */
-function typeHTML(element, html, speed = 12, callback) {
-  const temp = document.createElement("div");
-  temp.innerHTML = html;
-  const nodes = Array.from(temp.childNodes);
+  function typeLine() {
+    if (lineIndex >= lines.length) return;
 
-  function typeNode(node, parent, done) {
-    if (node.nodeType === 3) {
-      let i = 0;
-      const text = node.textContent;
-      const span = document.createTextNode("");
-      parent.appendChild(span);
-
-      const interval = setInterval(() => {
-        span.textContent += text[i];
-        i++;
-        if (i >= text.length) {
-          clearInterval(interval);
-          done();
-        }
-      }, speed);
-
-    } else {
-      const clone = node.cloneNode(false);
-      parent.appendChild(clone);
-      const children = Array.from(node.childNodes);
-      let index = 0;
-
-      function nextChild() {
-        if (index >= children.length) {
-          done();
-          return;
-        }
-        typeNode(children[index], clone, () => {
-          index++;
-          nextChild();
-        });
-      }
-      nextChild();
-    }
-  }
-
-  let index = 0;
-  function next() {
-    if (index >= nodes.length) {
-      if (callback) callback();
-      return;
-    }
-    typeNode(nodes[index], element, () => {
-      index++;
-      next();
-    });
-  }
-
-  next();
-}
-
-
-/* Main animation engine */
-function startTyping() {
-  let index = 0;
-
-  function nextLine() {
-    if (index >= codeStructure.length) return;
-
-    const line = codeStructure[index];
     const div = document.createElement("div");
     editor.appendChild(div);
 
-    if (line.type === "blockStart") {
-      div.innerHTML = line.content;
-      index++;
-      setTimeout(nextLine, 200);
-    }
-    else if (line.type === "blockEnd") {
-      div.innerHTML = line.content;
-      index++;
-      setTimeout(nextLine, 200);
-    }
-    else {
-      typeHTML(div, line.content, 12, () => {
-        index++;
-        setTimeout(nextLine, 200);
-      });
-    }
+    const cursor = document.createElement("span");
+    cursor.className = "cursor";
+    div.appendChild(cursor);
 
-    if (line.content.includes("token-dot")) {
-      const rect = div.getBoundingClientRect();
-      showSuggestions(rect.left + 280, rect.top + 20);
-    }
+    const html = lines[lineIndex];
+    let i = 0;
+
+    const typing = setInterval(() => {
+
+      div.innerHTML = html.slice(0, i) + `<span class="cursor"></span>`;
+      i++;
+
+      // Trigger suggestions when typing a dot
+      if (html[i] === ".") {
+        const rect = div.getBoundingClientRect();
+        showSuggestions(rect.left + 220, rect.top + 25);
+      }
+
+      if (i >= html.length) {
+        clearInterval(typing);
+        lineIndex++;
+        setTimeout(typeLine, 400);
+      }
+
+    }, 15);
   }
 
-  nextLine();
+  typeLine();
 }
 
-startTyping();
+typeLines();
 
 </script>
 
