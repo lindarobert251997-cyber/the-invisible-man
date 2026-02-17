@@ -3,129 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Invisible Man</title>
+<title>Encrypted Transmission</title>
 
 <style>
 html, body {
   margin: 0;
   padding: 0;
-  background: black;
+  background: #000;
   font-family: "Courier New", monospace;
   height: 100%;
   overflow: hidden;
+  color: #00f7ff;
 }
 
-/* CRT overlay */
-#crt {
+/* ===== Background Code Scroll ===== */
+#bg-code {
   position: fixed;
   top: 0;
   left: 0;
+  width: 200%;
+  height: 200%;
+  opacity: 0.05;
+  font-size: 14px;
+  line-height: 18px;
+  white-space: pre;
+  animation: scroll 60s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes scroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
+/* ===== CRT Overlay ===== */
+#crt {
+  position: fixed;
   width: 100%;
   height: 100%;
   background: black;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
 }
 
-/* RGB line — STARTS as a thin line */
 #beam {
   width: 100%;
-  height: 5px;
-  border-radius: 50%;
-  /*background: linear-gradient(90deg, red, lime, blue);*/
+  height: 4px;
   background: #fff;
-  box-shadow:
-    -15px 0 20px #fff,
-     15px 0 20px #fff,
-     0 0 30px #fff;
-  opacity: 0;
+  box-shadow: 0 0 30px #fff;
+  animation: shutdown 1s forwards;
 }
 
-/* Shutdown animation */
-@keyframes rgbShutdown {
-
-  /* Appear as thin RGB line */
-  0% {
-    opacity: 1;
-    transform: scaleX(1);
-  }
-
-  /* Slight burst */
-  40% {
-    transform: scaleX(0.5);
-  }
-
-  /* Collapse to center */
-  80% {
-    transform: scaleX(0.1);
-  }
-
-  /* Disappear */
-  100% {
-    opacity: 0;
-    transform: scaleX(0);
-  }
+@keyframes shutdown {
+  0% { opacity: 1; transform: scaleX(1); }
+  80% { transform: scaleX(0.05); }
+  100% { opacity: 0; transform: scaleX(0); }
 }
 
+/* ===== Main Content ===== */
 #content {
   display: none;
-  padding: 60px 40px;
-  font-size: 20px;
-  line-height: 1.8;
+  padding: 80px 60px;
+  font-size: 22px;
+  line-height: 2;
+  animation: drift 6s ease-in-out infinite alternate;
 }
-.circle-cont{ display: flex; justify-content: center; align-items: center; height: 100%;}
-.circle{ background: #fff; height: 40px; width: 20px; border-radius: 50px; box-shadow: 0px 0px 20px 20px #fff;}
-.line1 { color: #00FFEF; font-weight: 600;}
-.line2 { color: red; font-weight: 600;}
-.line3 { color: red; font-weight: 600;}
-.line4 { color: red; font-weight: 600;}
-.line5 { color: red; font-weight: 600;}
 
+/* Subtle camera drift */
+@keyframes drift {
+  from { transform: translate(0px, 0px); }
+  to { transform: translate(2px, -2px); }
+}
+
+/* Base code style */
+.code-line {
+  color: #00f7ff;
+  text-shadow: 0 0 6px #00f7ff;
+  opacity: 0.6;
+}
+
+/* Identity injection */
+.identity {
+  color: #ff003c;
+  text-shadow:
+    0 0 6px #ff003c,
+    0 0 14px #ff003c,
+    0 0 24px #ff003c;
+  position: relative;
+}
+
+/* Flicker effect */
+.identity {
+  animation: flicker 2s infinite;
+}
+
+@keyframes flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
+  20%, 24%, 55% { opacity: 0.4; }
+}
+
+/* Glitch */
+.identity::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 2px;
+  top: 0;
+  color: cyan;
+  opacity: 0.3;
+  clip-path: inset(0 0 50% 0);
+  animation: glitch 2s infinite;
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, 2px); }
+  80% { transform: translate(1px, -2px); }
+  100% { transform: translate(0); }
+}
+
+/* Dust particles */
+#dust {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.05;
+  pointer-events: none;
+}
 </style>
 </head>
 
 <body>
 
+<div id="bg-code"></div>
+<div id="dust"></div>
+
 <div id="crt">
-  <div id="beam">
-    <div class="circle-cont">
-       <div class="circle">
-       </div>
-      </div>
-  </div>
+  <div id="beam"></div>
 </div>
 
 <div id="content"></div>
 
 <script>
 
+/* Fake background code */
+const bg = document.getElementById("bg-code");
+bg.textContent = `
+function intercept(signal){
+  if(signal.visibility === false){
+    inject("Cipher");
+    inject("The Invisible Man");
+  }
+}
+while(true){
+  transmit("The Last Vision");
+}
+`;
+
+/* Foreground lines */
 const lines = [
-  { text: "Cipher{", class: "line1" },
-  { text: "aka The Invisible Man();", class: "line2" },
+  { text: "try {", class: "code-line" },
+  { text: "   system.visibility = false;", class: "code-line" },
+  { text: "   render.entity(\"Cipher\");", class: "identity" },
+  { text: "   identity.inject(\"The Invisible Man\");", class: "identity" },
   { text: "", class: "" },
-  { text: "The Last Vision();", class: "line3" },
+  { text: "   network.signal(\"The Last Vision\");", class: "identity" },
   { text: "", class: "" },
-  { text: "561.305.9696();", class: "line4" },
-  { text: "thelastvision@live.com();", class: "line5" },
-  { text: "}", class: "line1" }
+  { text: "   contact.connect(\"561.305.9696\");", class: "identity" },
+  { text: "   contact.mail(\"thelastvision@live.com\");", class: "identity" },
+  { text: "}", class: "code-line" }
 ];
 
-const beam = document.getElementById("beam");
-const crt = document.getElementById("crt");
 const content = document.getElementById("content");
 
-/* Start RGB shutdown */
-beam.style.animation = "rgbShutdown 1s forwards";
-
-/* Remove CRT and start typing */
+/* Remove CRT after animation */
 setTimeout(() => {
-  crt.style.display = "none";
+  document.getElementById("crt").style.display = "none";
   content.style.display = "block";
   typeLines();
-}, 1100);
+}, 1000);
 
+/* Typing animation */
 function typeLines() {
   let lineIndex = 0;
 
@@ -135,6 +197,7 @@ function typeLines() {
     const lineData = lines[lineIndex];
     const div = document.createElement("div");
     div.className = lineData.class;
+    div.setAttribute("data-text", lineData.text);
     content.appendChild(div);
 
     let i = 0;
@@ -146,19 +209,18 @@ function typeLines() {
       if (i >= text.length) {
         clearInterval(typing);
         lineIndex++;
-        setTimeout(typeLine, 400);
+        setTimeout(typeLine, 300);
       }
-    }, 60);
+    }, 40);
 
     if (text === "") {
       lineIndex++;
-      setTimeout(typeLine, 400);
+      setTimeout(typeLine, 300);
     }
   }
 
   typeLine();
 }
-
 </script>
 
 </body>
