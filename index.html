@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -169,6 +169,199 @@ function typeLines() {
 }
 
 typeLines();
+
+</script>
+
+</body>
+</html>-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encrypted Transmission</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  font-family: "Courier New", monospace;
+  height: 100%;
+  overflow: hidden;
+  color: #00f7ff;
+}
+
+/* ===== POWER OFF SEQUENCE ===== */
+#shutdown {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 10;
+  animation: collapse 0.8s forwards;
+}
+
+@keyframes collapse {
+  0% { transform: scaleY(1); }
+  60% { transform: scaleY(0.02); }
+  100% { transform: scaleY(0); }
+}
+
+/* ===== RED PULSE ===== */
+@keyframes pulseRed {
+  0% { text-shadow: 0 0 5px #ff0000; }
+  50% { text-shadow: 0 0 20px #ff0000; }
+  100% { text-shadow: 0 0 5px #ff0000; }
+}
+
+.danger {
+  color: #ff003c;
+  animation: pulseRed 1s infinite;
+}
+
+/* ===== TERMINAL ===== */
+#terminal {
+  display: none;
+  padding: 40px;
+  font-size: 18px;
+}
+
+#cmd {
+  background: #000;
+  border: none;
+  color: #00f7ff;
+  width: 100%;
+  font-family: monospace;
+}
+
+/* ===== GLITCH SHAKE ===== */
+@keyframes shake {
+  0% { transform: translate(0px,0px); }
+  25% { transform: translate(2px,-2px); }
+  50% { transform: translate(-2px,2px); }
+  75% { transform: translate(1px,-1px); }
+  100% { transform: translate(0px,0px); }
+}
+
+.shake {
+  animation: shake 0.2s;
+}
+</style>
+</head>
+<body>
+
+<div id="shutdown"></div>
+
+<div id="terminal">
+<pre id="output"></pre>
+<input id="cmd" placeholder=">">
+</div>
+
+<script>
+
+/* STATIC BURST */
+const staticSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-tv-static-bleep-2592.mp3");
+staticSound.volume = 0.4;
+staticSound.play();
+
+/* VIBRATION (mobile only) */
+if (navigator.vibrate) {
+  navigator.vibrate([100, 50, 100]);
+}
+
+/* After shutdown */
+setTimeout(()=>{
+  document.getElementById("shutdown").style.display = "none";
+  document.getElementById("terminal").style.display = "block";
+  startTransmission();
+},1000);
+
+/* HEX decoder */
+function hexToString(hex){
+  let str = '';
+  for (let i = 0; i < hex.length; i += 2)
+    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+  return str;
+}
+
+/* Transmission */
+function startTransmission(){
+
+const lines = [
+  ">>> SIGNAL BREACH DETECTED",
+  ">>> DEVICE INTERFACE COMPROMISED",
+  "",
+  "fragment: \"You should have left me alone.\"",
+  hexToString("596f7520666f72636564207468652072657665616c2e"),
+  "fragment: \"You wanted to know who I am.\"",
+  "",
+  "camera.access = true;",
+  "geo.tracking = enabled;",
+  "",
+  "identity.inject(\"Cipher\");",
+  "alias.assign(\"The Invisible Man\");",
+  "division.register(\"The Last Vision\");",
+  "",
+  "contact.connect(\"561.305.9696\");",
+  "contact.mail(\"thelastvision@live.com\");",
+  "",
+  ">>> INSTABILITY ESCALATING"
+];
+
+const output = document.getElementById("output");
+
+let i = 0;
+function typeLine(){
+  if(i >= lines.length) return;
+
+  let line = lines[i];
+
+  if(line.includes("Cipher")){
+    line = "<span class='danger'>"+line+"</span>";
+  }
+
+  output.innerHTML += line + "\n";
+  i++;
+
+  document.body.classList.add("shake");
+  setTimeout(()=>document.body.classList.remove("shake"),150);
+
+  setTimeout(typeLine, 200);
+}
+typeLine();
+}
+
+/* TAP GLITCH */
+document.body.addEventListener("click", ()=>{
+  document.body.classList.add("shake");
+  setTimeout(()=>document.body.classList.remove("shake"),200);
+});
+
+/* COMMANDS */
+document.getElementById("cmd").addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    let val = this.value.toLowerCase();
+
+    if(val === "reveal"){
+      output.innerHTML += "\n>>> IDENTITY BREACH <<<\n";
+      output.innerHTML += "<span class='danger'>Cipher // The Invisible Man</span>\n";
+    }
+
+    if(val === "contain"){
+      document.body.style.background = "#000";
+      output.innerHTML += "\n>>> SIGNAL TERMINATED\n";
+    }
+
+    this.value = "";
+  }
+});
+
+/* AUTO SELF DESTRUCT */
+setTimeout(()=>{
+  document.body.innerHTML = "";
+  document.body.style.background = "#000";
+},25000);
 
 </script>
 
