@@ -185,24 +185,59 @@ typeLines();
 html, body {
   margin: 0;
   padding: 0;
-  background: #000000; /* PURE JET BLACK */
+  background: #000000;
   font-family: "Courier New", monospace;
   height: 100%;
   overflow: hidden;
   color: #00f7ff;
 }
 
-/* Background matrix */
+/* ===== POWER OFF OVERLAY ===== */
+#shutdown {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#collapse {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  animation: collapse 0.7s forwards;
+}
+
+@keyframes collapse {
+  0% { transform: scaleY(1); }
+  60% { transform: scaleY(0.02); }
+  100% { transform: scaleY(0); }
+}
+
+/* Micro flash */
+#flash {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  opacity: 0;
+  z-index: 9;
+}
+
+/* Matrix background */
 #matrix {
   position: fixed;
   width: 200%;
   height: 200%;
-  background: #000000; /* ensures no layering haze */
-  opacity: 0.04; /* very subtle so black stays black */
+  opacity: 0.03;
   font-size: 13px;
   line-height: 18px;
   white-space: pre;
-  animation: scroll 70s linear infinite;
+  animation: scroll 80s linear infinite;
+  display: none;
 }
 
 @keyframes scroll {
@@ -216,61 +251,62 @@ html, body {
   padding: 50px;
   font-size: 18px;
   line-height: 1.8;
-  z-index: 2;
-  animation: drift 6s ease-in-out infinite alternate;
-  background: #000000; /* lock black */
-}
-
-@keyframes drift {
-  from { transform: translate(0,0); }
-  to { transform: translate(2px,-2px); }
+  display: none;
 }
 
 .identity {
   color: #ff003c;
   text-shadow: 0 0 8px #ff003c;
 }
-
-.flash {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background: white;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 3;
-}
 </style>
 </head>
-
 <body>
 
+<div id="flash"></div>
+
+<div id="shutdown">
+  <div id="collapse"></div>
+</div>
+
 <div id="matrix"></div>
-<div class="flash" id="flash"></div>
 
 <div id="terminal">
 <pre id="output"></pre>
 <input id="cmd" placeholder="> type command"
-style="background:#000000;color:#00f7ff;border:none;font-family:monospace;width:100%;">
+style="background:#000;color:#00f7ff;border:none;font-family:monospace;width:100%;">
 </div>
 
 <script>
 
-/* Background filler */
+/* Step 1: Shutdown illusion */
+setTimeout(()=>{
+  document.getElementById("flash").style.opacity = "0.9";
+  setTimeout(()=>{
+    document.getElementById("flash").style.opacity = "0";
+  },80);
+},500);
+
+/* After collapse completes */
+setTimeout(()=>{
+  document.getElementById("shutdown").style.display = "none";
+  document.getElementById("matrix").style.display = "block";
+  document.getElementById("terminal").style.display = "block";
+  startTransmission();
+},1200);
+
+/* Matrix background */
 const filler = `
 while(system.active){
    monitor.observer();
-   if(curiosity > safeLevel){
-      instability++;
-   }
    mask.visibility(false);
-   echo("signal distortion detected");
+   instability++;
+   echo("signal distortion");
 }
 `;
 
 document.getElementById("matrix").textContent = filler.repeat(40);
 
-/* Hex decoder */
+/* Hex decode */
 function hexToString(hex){
   let str = '';
   for (let i = 0; i < hex.length; i += 2)
@@ -278,13 +314,15 @@ function hexToString(hex){
   return str;
 }
 
+/* Transmission typing */
+function startTransmission(){
+
 const lines = [
-  "initializing transmission...",
+  "boot.sequence.override();",
   "observer interference detected.",
   "fragment: \"You should have left me alone.\"",
   hexToString("596f7520666f72636564207468652072657665616c2e"),
   "fragment: \"You wanted to know who I am.\"",
-  "madness.threshold++",
   "",
   "identity.inject(\"Cipher\");",
   "alias.assign(\"The Invisible Man\");",
@@ -306,21 +344,14 @@ function typeLine(){
   setTimeout(typeLine, 200);
 }
 typeLine();
-
-/* Tap glitch */
-document.body.addEventListener("click", ()=>{
-  const flash = document.getElementById("flash");
-  flash.style.opacity = "0.8";
-  setTimeout(()=> flash.style.opacity = "0", 80);
-});
+}
 
 /* Command reveal */
 document.getElementById("cmd").addEventListener("keydown", function(e){
   if(e.key === "Enter"){
     if(this.value.toLowerCase() === "reveal"){
-      output.innerHTML += "\n>>> IDENTITY BREACH <<<\n";
-      output.innerHTML += "Cipher // The Invisible Man\n";
-      output.innerHTML += "System cannot contain subject.\n";
+      document.getElementById("output").innerHTML += 
+      "\n>>> IDENTITY BREACH <<<\nCipher // The Invisible Man\nSystem containment failed.\n";
     }
     this.value = "";
   }
