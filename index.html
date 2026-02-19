@@ -185,99 +185,92 @@ typeLines();
 html, body {
   margin: 0;
   padding: 0;
-  background: #000;
+  background: #000000; /* PURE JET BLACK */
   font-family: "Courier New", monospace;
   height: 100%;
   overflow: hidden;
   color: #00f7ff;
 }
 
-/* ===== POWER OFF SEQUENCE ===== */
-#shutdown {
+/* Background matrix */
+#matrix {
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  background: #000000; /* ensures no layering haze */
+  opacity: 0.04; /* very subtle so black stays black */
+  font-size: 13px;
+  line-height: 18px;
+  white-space: pre;
+  animation: scroll 70s linear infinite;
+}
+
+@keyframes scroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
+/* Terminal */
+#terminal {
+  position: relative;
+  padding: 50px;
+  font-size: 18px;
+  line-height: 1.8;
+  z-index: 2;
+  animation: drift 6s ease-in-out infinite alternate;
+  background: #000000; /* lock black */
+}
+
+@keyframes drift {
+  from { transform: translate(0,0); }
+  to { transform: translate(2px,-2px); }
+}
+
+.identity {
+  color: #ff003c;
+  text-shadow: 0 0 8px #ff003c;
+}
+
+.flash {
   position: fixed;
   width: 100%;
   height: 100%;
-  background: #000;
-  z-index: 10;
-  animation: collapse 0.8s forwards;
-}
-
-@keyframes collapse {
-  0% { transform: scaleY(1); }
-  60% { transform: scaleY(0.02); }
-  100% { transform: scaleY(0); }
-}
-
-/* ===== RED PULSE ===== */
-@keyframes pulseRed {
-  0% { text-shadow: 0 0 5px #ff0000; }
-  50% { text-shadow: 0 0 20px #ff0000; }
-  100% { text-shadow: 0 0 5px #ff0000; }
-}
-
-.danger {
-  color: #ff003c;
-  animation: pulseRed 1s infinite;
-}
-
-/* ===== TERMINAL ===== */
-#terminal {
-  display: none;
-  padding: 40px;
-  font-size: 18px;
-}
-
-#cmd {
-  background: #000;
-  border: none;
-  color: #00f7ff;
-  width: 100%;
-  font-family: monospace;
-}
-
-/* ===== GLITCH SHAKE ===== */
-@keyframes shake {
-  0% { transform: translate(0px,0px); }
-  25% { transform: translate(2px,-2px); }
-  50% { transform: translate(-2px,2px); }
-  75% { transform: translate(1px,-1px); }
-  100% { transform: translate(0px,0px); }
-}
-
-.shake {
-  animation: shake 0.2s;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
 }
 </style>
 </head>
+
 <body>
 
-<div id="shutdown"></div>
+<div id="matrix"></div>
+<div class="flash" id="flash"></div>
 
 <div id="terminal">
 <pre id="output"></pre>
-<input id="cmd" placeholder=">">
+<input id="cmd" placeholder="> type command"
+style="background:#000000;color:#00f7ff;border:none;font-family:monospace;width:100%;">
 </div>
 
 <script>
 
-/* STATIC BURST */
-const staticSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-tv-static-bleep-2592.mp3");
-staticSound.volume = 0.4;
-staticSound.play();
-
-/* VIBRATION (mobile only) */
-if (navigator.vibrate) {
-  navigator.vibrate([100, 50, 100]);
+/* Background filler */
+const filler = `
+while(system.active){
+   monitor.observer();
+   if(curiosity > safeLevel){
+      instability++;
+   }
+   mask.visibility(false);
+   echo("signal distortion detected");
 }
+`;
 
-/* After shutdown */
-setTimeout(()=>{
-  document.getElementById("shutdown").style.display = "none";
-  document.getElementById("terminal").style.display = "block";
-  startTransmission();
-},1000);
+document.getElementById("matrix").textContent = filler.repeat(40);
 
-/* HEX decoder */
+/* Hex decoder */
 function hexToString(hex){
   let str = '';
   for (let i = 0; i < hex.length; i += 2)
@@ -285,19 +278,13 @@ function hexToString(hex){
   return str;
 }
 
-/* Transmission */
-function startTransmission(){
-
 const lines = [
-  ">>> SIGNAL BREACH DETECTED",
-  ">>> DEVICE INTERFACE COMPROMISED",
-  "",
+  "initializing transmission...",
+  "observer interference detected.",
   "fragment: \"You should have left me alone.\"",
   hexToString("596f7520666f72636564207468652072657665616c2e"),
   "fragment: \"You wanted to know who I am.\"",
-  "",
-  "camera.access = true;",
-  "geo.tracking = enabled;",
+  "madness.threshold++",
   "",
   "identity.inject(\"Cipher\");",
   "alias.assign(\"The Invisible Man\");",
@@ -306,7 +293,7 @@ const lines = [
   "contact.connect(\"561.305.9696\");",
   "contact.mail(\"thelastvision@live.com\");",
   "",
-  ">>> INSTABILITY ESCALATING"
+  "// instability rising..."
 ];
 
 const output = document.getElementById("output");
@@ -314,54 +301,30 @@ const output = document.getElementById("output");
 let i = 0;
 function typeLine(){
   if(i >= lines.length) return;
-
-  let line = lines[i];
-
-  if(line.includes("Cipher")){
-    line = "<span class='danger'>"+line+"</span>";
-  }
-
-  output.innerHTML += line + "\n";
+  output.innerHTML += lines[i] + "\n";
   i++;
-
-  document.body.classList.add("shake");
-  setTimeout(()=>document.body.classList.remove("shake"),150);
-
   setTimeout(typeLine, 200);
 }
 typeLine();
-}
 
-/* TAP GLITCH */
+/* Tap glitch */
 document.body.addEventListener("click", ()=>{
-  document.body.classList.add("shake");
-  setTimeout(()=>document.body.classList.remove("shake"),200);
+  const flash = document.getElementById("flash");
+  flash.style.opacity = "0.8";
+  setTimeout(()=> flash.style.opacity = "0", 80);
 });
 
-/* COMMANDS */
+/* Command reveal */
 document.getElementById("cmd").addEventListener("keydown", function(e){
   if(e.key === "Enter"){
-    let val = this.value.toLowerCase();
-
-    if(val === "reveal"){
+    if(this.value.toLowerCase() === "reveal"){
       output.innerHTML += "\n>>> IDENTITY BREACH <<<\n";
-      output.innerHTML += "<span class='danger'>Cipher // The Invisible Man</span>\n";
+      output.innerHTML += "Cipher // The Invisible Man\n";
+      output.innerHTML += "System cannot contain subject.\n";
     }
-
-    if(val === "contain"){
-      document.body.style.background = "#000";
-      output.innerHTML += "\n>>> SIGNAL TERMINATED\n";
-    }
-
     this.value = "";
   }
 });
-
-/* AUTO SELF DESTRUCT */
-setTimeout(()=>{
-  document.body.innerHTML = "";
-  document.body.style.background = "#000";
-},25000);
 
 </script>
 
